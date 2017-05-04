@@ -46,8 +46,7 @@ public class StateStores {
    */
   public StateStores(Config config, Path taskStoreBase, String taskStoreTable, Path workUnitStoreBase,
       String workUnitStoreTable) {
-    String stateStoreType = ConfigUtils.getString(config, ConfigurationKeys.STATE_STORE_TYPE_KEY,
-        ConfigurationKeys.DEFAULT_STATE_STORE_TYPE);
+    String stateStoreType = ConfigurationKeys.DEFAULT_STATE_STORE_TYPE;
 
     ClassAliasResolver<StateStore.Factory> resolver =
         new ClassAliasResolver<>(StateStore.Factory.class);
