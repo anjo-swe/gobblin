@@ -30,6 +30,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.typesafe.config.ConfigValueFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -167,10 +168,14 @@ public class GobblinTaskRunner {
     this.containerMetrics = buildContainerMetrics(this.config, properties, applicationName, this.taskRunnerId);
 
     // Register task factory for the Helix task state model
+    Config config1 = ConfigUtils.propertiesToConfig(properties).withValue(ConfigurationKeys.STATE_STORE_FS_URI_KEY,
+        ConfigValueFactory.fromAnyRef(
+            new URI(appWorkDir.toUri().getScheme(), appWorkDir.toUri().getHost(), null, null).toString()));
+
     Map<String, TaskFactory> taskFactoryMap = Maps.newHashMap();
     taskFactoryMap.put(GOBBLIN_TASK_FACTORY_NAME,
         new GobblinHelixTaskFactory(this.containerMetrics, taskExecutor, taskStateTracker, this.fs, appWorkDir,
-            config));
+            config1));
     this.taskStateModelFactory = new TaskStateModelFactory(this.helixManager, taskFactoryMap);
     this.helixManager.getStateMachineEngine().registerStateModelFactory("Task", this.taskStateModelFactory);
   }
