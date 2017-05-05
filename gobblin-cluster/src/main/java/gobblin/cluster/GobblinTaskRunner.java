@@ -168,14 +168,15 @@ public class GobblinTaskRunner {
     this.containerMetrics = buildContainerMetrics(this.config, properties, applicationName, this.taskRunnerId);
 
     // Register task factory for the Helix task state model
-    Config config1 = ConfigUtils.propertiesToConfig(properties).withValue(ConfigurationKeys.STATE_STORE_FS_URI_KEY,
-        ConfigValueFactory.fromAnyRef(
-            new URI(appWorkDir.toUri().getScheme(), appWorkDir.toUri().getHost(), null, null).toString()));
+    Config stateStoresJobConfig = ConfigUtils.propertiesToConfig(properties)
+        .withValue(ConfigurationKeys.STATE_STORE_FS_URI_KEY, ConfigValueFactory.fromAnyRef(
+            new URI(appWorkDir.toUri().getScheme(), null, appWorkDir.toUri().getHost(),
+                    appWorkDir.toUri().getPort(), null, null, null).toString()));
 
     Map<String, TaskFactory> taskFactoryMap = Maps.newHashMap();
     taskFactoryMap.put(GOBBLIN_TASK_FACTORY_NAME,
         new GobblinHelixTaskFactory(this.containerMetrics, taskExecutor, taskStateTracker, this.fs, appWorkDir,
-            config1));
+                stateStoresJobConfig));
     this.taskStateModelFactory = new TaskStateModelFactory(this.helixManager, taskFactoryMap);
     this.helixManager.getStateMachineEngine().registerStateModelFactory("Task", this.taskStateModelFactory);
   }
