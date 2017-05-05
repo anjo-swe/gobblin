@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import gobblin.configuration.WorkUnitState;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,21 +104,7 @@ public abstract class FileBasedSource<S, D> extends AbstractSource<S, D> {
     }
 
     TableType tableType = TableType.valueOf(state.getProp(ConfigurationKeys.EXTRACT_TABLE_TYPE_KEY).toUpperCase());
-    SourceState previousSourceState = state.getPreviousSourceState();
-    Set<String> prevFsSnapshot = Sets.newHashSet();
-
-    // Get list of files seen in the previous run
-    if (previousSourceState != null) {
-      if (previousSourceState.contains(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT)) {
-        prevFsSnapshot.addAll(previousSourceState.getPropAsSet(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT));
-      } else if (state.getPropAsBoolean(ConfigurationKeys.SOURCE_FILEBASED_FS_PRIOR_SNAPSHOT_REQUIRED,
-            ConfigurationKeys.DEFAULT_SOURCE_FILEBASED_FS_PRIOR_SNAPSHOT_REQUIRED)) {
-        // If a previous job exists, there should be a snapshot property.  If not, we need to fail so that we
-        // don't accidentally read files that have already been processed.
-        throw new RuntimeException(String.format("No '%s' found on state of prior job",
-            ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT));
-      }
-    }
+    Set<String> prevFsSnapshot = getPrevFsSnapshot(state);
 
     List<WorkUnit> workUnits = Lists.newArrayList();
     List<WorkUnit> previousWorkUnitsForRetry = this.getPreviousWorkUnitsForRetry(state);
@@ -254,5 +241,29 @@ public abstract class FileBasedSource<S, D> extends AbstractSource<S, D> {
     }
     log.info(String.format("Will pull the following files %s in this run: %s", remainingString,
             Arrays.toString(filesToPull.subList(0, filesToLog).toArray())));
+  }
+
+  private Set<String> getPrevFsSnapshot(SourceState state) {
+    List<WorkUnitState> previousWorkUnitStates = state.getPreviousWorkUnitStates();
+    if (!previousWorkUnitStates.isEmpty()) {
+      if (previousWorkUnitStates.get(0).getWorkunit().contains(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT)) {
+        return previousWorkUnitStates.get(0).getWorkunit().getPropAsSet(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT);
+      } else {
+        SourceState previousSourceState = state.getPreviousSourceState();
+        if (previousSourceState != null) {
+          if (previousSourceState.contains(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT)) {
+            return previousSourceState.getPropAsSet(ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT);
+          }
+          if (state.getPropAsBoolean(ConfigurationKeys.SOURCE_FILEBASED_FS_PRIOR_SNAPSHOT_REQUIRED,
+                  ConfigurationKeys.DEFAULT_SOURCE_FILEBASED_FS_PRIOR_SNAPSHOT_REQUIRED)) {
+            // If a previous job exists, there should be a snapshot property.  If not, we need to fail so that we
+            // don't accidentally read files that have already been processed.
+            throw new RuntimeException(String.format("No '%s' found on state of prior job",
+                    ConfigurationKeys.SOURCE_FILEBASED_FS_SNAPSHOT));
+          }
+        }
+      }
+    }
+    return Sets.newHashSet();
   }
 }
