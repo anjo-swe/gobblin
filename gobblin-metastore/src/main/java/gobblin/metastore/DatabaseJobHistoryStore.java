@@ -61,8 +61,11 @@ import org.reflections.util.ConfigurationBuilder;
  * @author Yinan Li
  */
 public class DatabaseJobHistoryStore implements JobHistoryStore {
-  private final VersionedDatabaseJobHistoryStore versionedStore;
+  // Scan all packages in the classpath with prefix gobblin.metastore.database when
+  // class is loaded. Since scan is expensive we do it only once when class is loaded.
+  private static final Reflections reflections = new Reflections(getConfigurationBuilder());
   private static Configuration configurationBuilder;
+  private final VersionedDatabaseJobHistoryStore versionedStore;
 
   @Inject
   public DatabaseJobHistoryStore(DataSource dataSource)
@@ -120,8 +123,6 @@ public class DatabaseJobHistoryStore implements JobHistoryStore {
     Class<?> foundClazz = null;
     Class<?> defaultClazz = null;
     MigrationVersion defaultVersion = MigrationVersion.EMPTY;
-    // Scan all packages
-    Reflections reflections = new Reflections(getConfigurationBuilder());
     for (Class<?> clazz : Sets.intersection(reflections.getTypesAnnotatedWith(SupportedDatabaseVersion.class),
             reflections.getSubTypesOf(VersionedDatabaseJobHistoryStore.class))) {
       SupportedDatabaseVersion annotation = clazz.getAnnotation(SupportedDatabaseVersion.class);
