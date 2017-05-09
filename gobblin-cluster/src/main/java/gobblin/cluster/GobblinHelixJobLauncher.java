@@ -370,12 +370,12 @@ public class GobblinHelixJobLauncher extends AbstractJobLauncher {
     String jobId;
 
     // generate job id if not already set
-    if (jobProps.containsKey(ConfigurationKeys.JOB_ID_KEY)) {
-      jobId = jobProps.getProperty(ConfigurationKeys.JOB_ID_KEY);
-    } else {
+//    if (jobProps.containsKey(ConfigurationKeys.JOB_ID_KEY)) {
+//      jobId = jobProps.getProperty(ConfigurationKeys.JOB_ID_KEY);
+//    } else {
       jobId = JobLauncherUtils.newJobId(JobState.getJobNameFromProps(jobProps));
       jobProps.put(ConfigurationKeys.JOB_ID_KEY, jobId);
-    }
+//    }
 
     String jobExecutionId = Long.toString(Id.Job.parse(jobId).getSequence());
 
