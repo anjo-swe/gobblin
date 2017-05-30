@@ -163,8 +163,8 @@ public class GobblinAWSClusterManager extends GobblinClusterManager {
         System.exit(1);
       }
 
-      Log4jConfigHelper.updateLog4jConfiguration(GobblinAWSClusterManager.class,
-          GobblinAWSConfigurationKeys.GOBBLIN_AWS_LOG4J_CONFIGURATION_FILE);
+//      Log4jConfigHelper.updateLog4jConfiguration(GobblinAWSClusterManager.class,
+//          GobblinAWSConfigurationKeys.GOBBLIN_AWS_LOG4J_CONFIGURATION_FILE);
 
       LOGGER.info(JvmUtils.getJvmInputArguments());
 
