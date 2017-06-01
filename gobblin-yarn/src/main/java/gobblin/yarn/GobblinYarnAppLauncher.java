@@ -251,7 +251,7 @@ public class GobblinYarnAppLauncher {
 
     String clusterName = this.config.getString(GobblinClusterConfigurationKeys.HELIX_CLUSTER_NAME_KEY);
     HelixUtils.createGobblinHelixCluster(
-        this.config.getString(GobblinClusterConfigurationKeys.ZK_CONNECTION_STRING_KEY), clusterName);
+        this.config.getString(GobblinClusterConfigurationKeys.ZK_CONNECTION_STRING_KEY), clusterName, false);
     LOGGER.info("Created Helix cluster " + clusterName);
 
     connectHelixManager();
