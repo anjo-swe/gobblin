@@ -165,7 +165,7 @@ public class AWSJobConfigurationManager extends JobConfigurationManager {
       final File jobConfigDir = new File(extractedPullFilesPath);
       if (jobConfigDir.exists()) {
         LOGGER.info("Loading job configurations from " + jobConfigDir);
-        final Properties properties = new Properties();
+        final Properties properties = ConfigUtils.configToProperties(this.config);
         properties.setProperty(ConfigurationKeys.JOB_CONFIG_FILE_GENERAL_PATH_KEY, jobConfigDir.getAbsolutePath());
 
         final List<Properties> jobConfigs = SchedulerUtils.loadGenericJobConfigs(properties);
