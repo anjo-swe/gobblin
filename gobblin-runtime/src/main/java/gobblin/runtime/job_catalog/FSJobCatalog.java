@@ -144,7 +144,7 @@ public class FSJobCatalog extends ImmutableFSJobCatalog implements MutableJobCat
    */
   @Override
   public boolean shouldLoadGlobalConf() {
-    return false;
+    return true;
   }
 
   @Override
