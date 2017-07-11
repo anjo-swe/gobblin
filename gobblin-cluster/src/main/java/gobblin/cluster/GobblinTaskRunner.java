@@ -30,7 +30,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.typesafe.config.ConfigValueFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -61,6 +60,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
@@ -70,6 +70,7 @@ import com.google.common.util.concurrent.ServiceManager;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 import gobblin.annotation.Alpha;
 import gobblin.configuration.ConfigurationKeys;
@@ -160,7 +161,8 @@ public class GobblinTaskRunner {
     Path appWorkDir = appWorkDirOptional.isPresent() ? appWorkDirOptional.get() :
         GobblinClusterUtils.getAppWorkDirPath(this.fs, applicationName, applicationId);
 
-    List<Service> services = Lists.newArrayList(taskExecutor, taskStateTracker, new JMXReportingService());
+    List<Service> services = Lists.newArrayList(taskExecutor, taskStateTracker,
+        new JMXReportingService(ImmutableMap.of("task.executor" ,taskExecutor.getTaskExecutorQueueMetricSet())));
     services.addAll(getServices());
 
     this.serviceManager = new ServiceManager(services);
